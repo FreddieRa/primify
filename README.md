@@ -24,8 +24,10 @@ _Note: According to the prime number theorem, the density of prime numbers is  a
 
 ## How to use
 
-Simply get the `primify` command line tool via `pip install primify`.
-You can also import the `PrimeImage` class from `primify.primify_base` or use `cli.py` as a command-line script.
+1. Clone this repository
+2. Run `pip install .`
+3. Add the script to path, or create an alias referencing it e.g. mine is `alias primify2=/Users/freddier/Library/Python/3.7/bin/primify`
+4. Run it as normal!
 
 ### Requirements
 Make sure you meet all the dependencies inside the `requirements.txt`. I would recommend to use pypy, as it seems to decrease compiling time by about 20%.
@@ -49,6 +51,7 @@ optional arguments:
   --output_file OUTPUT_FILE
                         File name of the text file containing the prime.
   -v                    Verbose output (Recommended!)
+  -p                    Show realtime progress of how many primality tests have been run
 ```
 Thus, if you have the source image at `./source.png` and you want to convert it into a prime contained in `./prime/prime.txt` which has at most 5000 digits and using conversion method 0 (other options are 1 or 2). Then you should run:
 

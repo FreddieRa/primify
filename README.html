@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Primify</title>
+        <style>
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+        
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="primify">Primify</h1>
+<p><em>Transform any image into a prime number that looks like the image if glanced upon from far away.</em></p>
+<p><img src="https://i.imgur.com/UoMYkVS.png" alt="result">
+<a href="https://travis-ci.org/joemccann/dillinger"><img src="https://travis-ci.org/joemccann/dillinger.svg?branch=master" alt="Build Status"></a></p>
+<h2 id="how-does-it-work">How does it work</h2>
+<p>We proceed in 5 steps:</p>
+<ol>
+<li>
+<p>We resize the image to contain at most a <code>--max_digits</code> amount of pixels.</p>
+</li>
+<li>
+<p>Run various image processing steps like edge enhancement and smoothing before converting the image into grey-scale.</p>
+</li>
+<li>
+<p>We then quantise the image into just having 5 to 10 greyness levels.</p>
+</li>
+</ol>
+<p><em>Note: There are multiple different methods for quantising the color levels and some methods will produces better results for some images. Make sure to play around with the <code>--method</code> parameter to get the best result.</em></p>
+<ol start="4">
+<li>
+<p>Now we map each greyness level to a digit, et voila, we have embedded the picture into a number.</p>
+</li>
+<li>
+<p>It now remains to tweak some of the digits until we find a prime number that still looks like the image.</p>
+</li>
+</ol>
+<p><em>Note: According to the prime number theorem, the density of prime numbers is  asymptotically of order 1/log(n). Hence, if we have some number n with m digits, the number of primality tests that we expect to do until we hit a prime number is roughly proportional to m. Since we use the Baillie–PSW primality test, the overall expected computational complexity of our prime searching procedure is O(n*log(n)³).</em></p>
+<h2 id="how-to-use">How to use</h2>
+<ol>
+<li>Clone this repository</li>
+<li>Run <code>pip install .</code></li>
+<li>Add the script to path, or create an alias referencing it e.g. mine is <code>alias primify2=/Users/freddier/Library/Python/3.7/bin/primify</code></li>
+<li>Run it as normal!</li>
+</ol>
+<h3 id="requirements">Requirements</h3>
+<p>Make sure you meet all the dependencies inside the <code>requirements.txt</code>. I would recommend to use pypy, as it seems to decrease compiling time by about 20%.</p>
+<h3 id="command-line-tool">Command-line tool</h3>
+<pre><code><code><div>usage: primify [-h] [--image IMAGE_PATH] [--max_digits MAX_DIGITS]
+                  [--method {0,1,2}] [--output_dir OUTPUT_DIR]
+                  [--output_file OUTPUT_FILE] [-v]
+
+Command-line tool for converting images to primes
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --image IMAGE_PATH    Source image to be converted.
+  --max_digits MAX_DIGITS
+                        Maximal number of digits the prime can have.
+  --method {0,1,2}      Method for converting image. Tweak 'till happy
+  --output_dir OUTPUT_DIR
+                        Directory of the output text file
+  --output_file OUTPUT_FILE
+                        File name of the text file containing the prime.
+  -v                    Verbose output (Recommended!)
+  -p                    Show realtime progress of how many primality tests have been run
+</div></code></code></pre>
+<p>Thus, if you have the source image at <code>./source.png</code> and you want to convert it into a prime contained in <code>./prime/prime.txt</code> which has at most 5000 digits and using conversion method 0 (other options are 1 or 2). Then you should run:</p>
+<p><code>primify -v --image ./source.png --max_digits 5000 --method 0 --output_dir ./prime/ --output_file prime.txt</code></p>
+<h3 id="importing-the-primeimage-class">Importing the PrimeImage class</h3>
+<p>You can also simply import the <code>PrimeImage</code> class from <code>primify.primify_base</code> and use that class in your own code. Check the <a href="https://primify.readthedocs.io/">documentation</a> for details on how to interact with the underlying API.</p>
+<h3 id="additional-material">Additional Material</h3>
+<p><a href="http://danieltemkin.com/">Daniel Temkin</a> wrote a lovely article on his blog <a href="https://esoteric.codes">esoteric.codes</a> giving some interesting insight and background for this tool. You can read it <a href="https://esoteric.codes/blog/primify">here</a>.</p>
+
+    </body>
+    </html>

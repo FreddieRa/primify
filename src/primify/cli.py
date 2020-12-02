@@ -75,6 +75,10 @@ def parse_args(args):
         "-v", action="store_true", dest="verbose", help="Verbose output"
     )
 
+    parser.add_argument(
+        "-p", action="store_true", dest="progress", help="Progress Bar"
+    )
+
     return parser.parse_args(args)
 
 
@@ -91,6 +95,7 @@ def main(args):
         max_digits=args.max_digits,
         conversion_method=args.method,
         verbose=args.verbose,
+        progress=args.progress,
         output_file_path=args.output_dir / args.output_file,
     )
 

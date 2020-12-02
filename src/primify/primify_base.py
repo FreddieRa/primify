@@ -4,7 +4,7 @@ from pathlib import Path
 
 from PIL import Image, ImageFilter
 from sympy import nextprime
-
+from primify.next_prime import *
 
 class PrimeImage(object):
     """
@@ -48,6 +48,7 @@ class PrimeImage(object):
         conversion_method: int = 1,
         output_file_path: Path = Path("./prime.txt"),
         verbose: bool = False,
+        progress: bool = False,
     ):
         super(PrimeImage, self).__init__()
 
@@ -59,6 +60,8 @@ class PrimeImage(object):
 
         # saving verbosity status
         self.VERBOSE = verbose
+
+        self.PROGRESS = progress
 
         # check if verbose is boolean
         if not isinstance(verbose, bool):
@@ -230,11 +233,12 @@ Note that in this instance we would expect to run
 about {int(self.MAX_DIGITS * 2.3)} primality tests."""
             )
 
-        self.prime = nextprime(self.prime)
+        # self.prime = nextprime(self.prime)
+        (self.prime, self.total) = next_prime(self.prime, int(self.MAX_DIGITS * 2.3), self.PROGRESS)
 
         if self.VERBOSE:
             print("Found!")
-            print(f"Did ~{int((self.prime-self.NUMBER)*2/6)} primality tests")
+            print(f"Did {self.total} primality tests")
 
         # set primed flag to true
         self.flag_primed = True
