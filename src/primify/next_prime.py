@@ -1,17 +1,8 @@
 import sys
 import threading
-
-class KeyboardThread(threading.Thread): 
-    def __init__(self, input_cbk = None, name='keyboard-input-thread'):
-        self.input_cbk = input_cbk
-        super(KeyboardThread, self).__init__(name=name)
-        self.end = False
-        self.daemon = True
-        self.start()
-
-    def run(self):
-        while True:
-            self.input_cbk(input()) #waits to get input + Return
+import multiprocessing as mp
+import os
+import time
 
 
 # legendre symbol (a|m)
@@ -150,14 +141,6 @@ def is_prime(n):
 
 # next prime strictly larger than n
 def next_prime(n, expected, progress):
-    j = 0
-
-    def callback(self):
-        progressBar(j, expected)
-
-    if(not progress): 
-        kthread = KeyboardThread(callback)
-
     if n < 2:
       return 2
     # first odd larger than n
@@ -183,20 +166,48 @@ def next_prime(n, expected, progress):
   
     i = int(n + (indices[m] - x))
     # adjust offsets
-    offs = offsets[m:]+offsets[:m]
-    j = 1
-    while True:
-      for o in offs:
-          if(progress): 
-              progressBar(j, expected)
-          if is_prime(i):
-              return (i, j)
-          i += o
-          j += 1
+    # offs = offsets[m:]+offsets[:m]
+    j = m
 
-def progressBar(current, total, barLength = 20):
-    percent = float(current) * 100 / total
-    arrow   = '-' * int(percent/100 * barLength - 1) + '>'
-    spaces  = ' ' * (barLength - len(arrow))
-    print('Progress: [%s%s] %d %% %s/%s' % (arrow, spaces, percent, current, total), end='\r')
-    sys.stdout.flush()
+    p = ProgressBar(expected)
+    the_queue = mp.Queue()
+    the_pool = mp.Pool(mp.cpu_count(), worker_main,(the_queue,p,))
+    
+    while True:
+        if(progress): 
+            p.update()
+        if is_prime(i):
+            return (i, tests)
+        i += offsets[j % len(offsets)]
+        j += 1
+
+class ProgressBar():
+    def __init__(self, total, barLength=20):
+        self.__total = total
+        self.__barLength = barLength
+        self.__current = 0
+
+    def update(self):
+        self.__current += 1
+        self.show()
+    
+    def show(self):
+        percent = float(self.__current) * 100 / self.__total
+        arrow   = '-' * int(percent/100 * self.__barLength - 1) + '>'
+        spaces  = ' ' * (self.__barLength - len(arrow))
+        print('Progress: [%s%s] %d %% %s/%s' % (arrow, spaces, percent, self.__current, self.__total), end='\r')
+        sys.stdout.flush()
+        
+
+def worker_main(queue, progressBar):
+    print(os.getpid(),"working")
+    while True:
+        item = queue.get(True)
+        print(os.getpid(), "got", item)
+        if is_prime(i):
+            return (i, tests)
+        else:
+            progressBar.update()
+
+            
+        
