@@ -155,7 +155,7 @@ def next_prime(n, expected, progress):
     def callback(self):
         progressBar(j, expected)
 
-    if(!progress): 
+    if(not progress): 
         kthread = KeyboardThread(callback)
 
     if n < 2:
