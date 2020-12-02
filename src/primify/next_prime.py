@@ -173,6 +173,11 @@ def next_prime(n, expected, progress):
     the_queue = mp.Queue()
     the_pool = mp.Pool(mp.cpu_count(), worker_main,(the_queue,p,))
     
+    for _ in range(2*mp.cpu_count()):
+      the_queue.put(i)
+      i += offsets[j % len(offsets)]
+      j += 1
+
     while True:
         if(progress): 
             p.update()
@@ -190,6 +195,9 @@ class ProgressBar():
     def update(self):
         self.__current += 1
         self.show()
+
+    def getCurrent(self):
+        return self.__current
     
     def show(self):
         percent = float(self.__current) * 100 / self.__total
@@ -204,8 +212,8 @@ def worker_main(queue, progressBar):
     while True:
         item = queue.get(True)
         print(os.getpid(), "got", item)
-        if is_prime(i):
-            return (i, tests)
+        if is_prime(item):
+            return (item, progressBar.getCurrent())
         else:
             progressBar.update()
 
