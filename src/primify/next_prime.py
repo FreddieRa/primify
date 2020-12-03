@@ -180,43 +180,58 @@ def next_prime(n, expected, progress):
     index = m
 
     p = ProgressBar(expected)
-    the_queue = mp.Queue()
-    manager = mp.Manager()
-    return_value = manager.dict()
-    the_pool = mp.Pool(mp.cpu_count(), worker_main, (the_queue, p, return_value,))
+    # the_queue = mp.Queue()
+    # manager = mp.Manager()
+    # return_value = manager.dict()
+    # return_value[0] = {"item":0, "tests":0}
+    # q = PrimeQueue(the_queue, offsets, number, index)
+    # the_pool = mp.Pool(mp.cpu_count(), worker_main, (q, p, return_value,))
    
-
-    q = PrimeQueue(the_queue, offsets, number, index)
-
-    for _ in range(2*mp.cpu_count()):
-        q.put(number)
-
+    
+    # print("starting queue: ",q.getQ())
 
     # while True:
-    #     if(progress):
-    #         p.update()
-    #     if is_prime(i):
-    #         return (i, tests)
-    #     i += offsets[j % len(offsets)]
-    #     j += 1
+    #     if return_value[0]["item"] != 0:
+    #         return return_value[0]
+    workingQueue = mp.Queue()
+    outputQueue = mp.Queue()
 
+    tests = 16
 
-class PrimeQueue():
-    def __init__(self, queue, offset, number, index):
-      self.__queue = queue
-      self.__offsets = offsets
-      self.__number = number
-      self.__index = index
+    # for _ in range(2*mp.cpu_count()):
+    #     workingQueue.put(number)
+    #     number += offsets[index % len(offsets)]
+    #     index += 1
 
-    def get(self):
-      self.__queue.get(True)
-      self.__number += offsets[self.__index % len(self.__offsets)]
-      self.__index += 1
-      self.put(self.__number)
+    # processes = [mp.Process(target=worker_main,args=(workingQueue, p, outputQueue)) for i in range(mp.cpu_count())]
 
-    def put(self, num):
-      self.__queue.put(num)
-      
+    pool = Pool(processes=6)
+
+    for proc in processes:
+        proc.start()
+    for proc in processes:
+        proc.join()
+
+    while True:
+        if workingQueue.qsize() < 2*mp.cpu_count():
+            workingQueue.put(number)
+            number += offsets[index % len(offsets)]
+            index += 1
+            tests += 1
+
+        if not outputQueue.empty():
+            return (outputQueue.get(), tests)
+
+def worker_main(queue, progressBar, result):
+    print(os.getpid(), "working")
+    while result.empty():
+        item = queue.get(True)
+        print(os.getpid(), "got", str(item)[-8:])
+        if is_prime(item):
+            result.put(item)
+        else:
+            progressBar.update()
+
 
 class ProgressBar():
     def __init__(self, total, barLength=20):
@@ -235,17 +250,6 @@ class ProgressBar():
         percent = float(self.__current) * 100 / self.__total
         arrow = '-' * int(percent/100 * self.__barLength - 1) + '>'
         spaces = ' ' * (self.__barLength - len(arrow))
-        print('Progress: [%s%s] %d %% %s/%s' % (arrow, spaces,
-                                                percent, self.__current, self.__total), end='\r')
+        print('Progress: [%s%s] %d %% %s/%s' % (arrow, spaces, percent, self.__current, self.__total), end='\r')
         sys.stdout.flush()
 
-
-def worker_main(queue, progressBar, result):
-    print(os.getpid(), "working")
-    while True:
-        item = queue.get(True)
-        print(os.getpid(), "got", item)
-        if is_prime(item):
-            result = {"item":item, "tests":progressBar.getCurrent()}
-        else:
-            progressBar.update()

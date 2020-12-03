@@ -128,7 +128,7 @@ class PrimeImage(object):
         description:
             Mainly for debugging
         """
-        self.im.show()
+        # self.im.show()
 
     def _enhance(self):
         """We apply various filters to the image to improve the conversion
