@@ -3,7 +3,6 @@ import threading
 import multiprocessing
 import os
 import time
-import numpy as np
 
 # legendre symbol (a|m)
 # note: returns m-1 if a is a non-residue, instead of -1
