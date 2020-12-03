@@ -165,7 +165,7 @@ def next_prime(n, expected, progress, parallel=False):
         while True:
           for o in offs:
               if(progress): 
-                  p(j)
+                  p.show(j)
               if is_prime(number):
                   return (number, j)
               number += o
