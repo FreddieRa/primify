@@ -1,9 +1,9 @@
 import sys
 import threading
-import multiprocessing as mp
+import multiprocessing
 import os
 import time
-
+import numpy as np
 
 # legendre symbol (a|m)
 # note: returns m-1 if a is a non-residue, instead of -1
@@ -118,24 +118,6 @@ max_int = 2147483647
 
 
 def is_prime(n):
-
-    if n < 212:
-        return n in small_primes
-
-    for p in small_primes:
-        if n % p == 0:
-            return False
-
-    # if n is a 32-bit integer, perform full trial division
-    if n <= max_int:
-        i = 211
-        while i*i < n:
-            for o in offsets:
-                i += o
-                if n % i == 0:
-                    return False
-        return True
-
     # Baillie-PSW
     # this is technically a probabalistic test, but there are no known pseudoprimes
     if not is_sprp(n):
@@ -175,69 +157,55 @@ def next_prime(n, expected, progress):
             m = (s + e) >> 1
 
     number = int(n + (indices[m] - x))
-    # adjust offsets
-    # offs = offsets[m:]+offsets[:m]
+
     index = m
 
     p = ProgressBar(expected)
-    # the_queue = mp.Queue()
-    # manager = mp.Manager()
-    # return_value = manager.dict()
-    # return_value[0] = {"item":0, "tests":0}
-    # q = PrimeQueue(the_queue, offsets, number, index)
-    # the_pool = mp.Pool(mp.cpu_count(), worker_main, (q, p, return_value,))
-   
-    
-    # print("starting queue: ",q.getQ())
 
-    # while True:
-    #     if return_value[0]["item"] != 0:
-    #         return return_value[0]
-    workingQueue = mp.Queue()
-    outputQueue = mp.Queue()
+    tests = 0
 
-    tests = 16
+    sizeOfArray = 10000
+    pool = multiprocessing.Pool(processes = multiprocessing.cpu_count())     
 
-    # for _ in range(2*mp.cpu_count()):
-    #     workingQueue.put(number)
-    #     number += offsets[index % len(offsets)]
-    #     index += 1
+    results = []
 
-    # processes = [mp.Process(target=worker_main,args=(workingQueue, p, outputQueue)) for i in range(mp.cpu_count())]
+    for i in range(sizeOfArray):
+        results.append(pool.apply_async(worker, (number,)))
+        number += offsets[index % len(offsets)]
+        index += 1
+
+    running = True
+    while running:
+        j = 0
+        while j < len(results):
+            result = results[j]
+            if result.ready():
+                tests += 1
+                p.show(tests)
+                if result.get() == 0:
+                    results.pop(j)
+                    j -= 1
+                else:
+                    prime = result.get()
+                    pool.close()
+                    pool.terminate()
+                    running = False
+                    break
+            j += 1
+
+        if all(result.ready() for result in results):
+            running = False
+
+    pool.close()
+    # pool.join()
+    return (prime, tests)
 
 
-    # THIS IS THE WAY WE SHOULD DO IT
-    # pool = mp.Pool(processes=6)
-    # pool.async_map(is_prime_helper, data_pairs)
-
-    # for proc in processes:
-    #     proc.start()
-    # for proc in processes:
-    #     proc.join()
-
-    while True:
-        if workingQueue.qsize() < 2*mp.cpu_count():
-            workingQueue.put(number)
-            number += offsets[index % len(offsets)]
-            index += 1
-            tests += 1
-
-        if not outputQueue.empty():
-            return (outputQueue.get(), tests)
-
-def is_prime_helper(num):
+def worker(num):
     if is_prime(num):
-        outputQueue.put(num)
-
-def worker_main(queue, progressBar, result):
-    print(os.getpid(), "working")
-    while result.empty():
-        item = queue.get(True)
-        print(os.getpid(), "got", str(item)[-8:])
-        if is_prime(item):
-            result.put(item)
-        else:
-            progressBar.update()
+        return num
+    else:
+        return 0
 
 
 class ProgressBar():
@@ -248,15 +216,15 @@ class ProgressBar():
         
     def update(self):
         self.__current += 1
-        self.show()
+        self.show(self.__current)
 
     def getCurrent(self):
         return self.__current
 
-    def show(self):
-        percent = float(self.__current) * 100 / self.__total
+    def show(self, num):
+        percent = float(num) * 100 / self.__total
         arrow = '-' * int(percent/100 * self.__barLength - 1) + '>'
         spaces = ' ' * (self.__barLength - len(arrow))
-        print('Progress: [%s%s] %d %% %s/%s' % (arrow, spaces, percent, self.__current, self.__total), end='\r')
+        print('Progress: [%s%s] %d %% %s/%s' % (arrow, spaces, percent, num, self.__total), end='\r')
         sys.stdout.flush()
 
