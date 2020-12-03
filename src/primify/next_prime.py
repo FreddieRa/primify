@@ -205,12 +205,15 @@ def next_prime(n, expected, progress):
 
     # processes = [mp.Process(target=worker_main,args=(workingQueue, p, outputQueue)) for i in range(mp.cpu_count())]
 
-    pool = Pool(processes=6)
 
-    for proc in processes:
-        proc.start()
-    for proc in processes:
-        proc.join()
+    # THIS IS THE WAY WE SHOULD DO IT
+    # pool = mp.Pool(processes=6)
+    # pool.async_map(is_prime_helper, data_pairs)
+
+    # for proc in processes:
+    #     proc.start()
+    # for proc in processes:
+    #     proc.join()
 
     while True:
         if workingQueue.qsize() < 2*mp.cpu_count():
@@ -221,6 +224,10 @@ def next_prime(n, expected, progress):
 
         if not outputQueue.empty():
             return (outputQueue.get(), tests)
+
+def is_prime_helper(num):
+    if is_prime(num):
+        outputQueue.put(num)
 
 def worker_main(queue, progressBar, result):
     print(os.getpid(), "working")
