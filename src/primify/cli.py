@@ -79,6 +79,10 @@ def parse_args(args):
         "-p", action="store_true", dest="progress", help="Progress Bar"
     )
 
+    parser.add_argument(
+        "-l", action="store_true", dest="parallel", help="Run in parallel"
+    )
+
     return parser.parse_args(args)
 
 
@@ -96,6 +100,7 @@ def main(args):
         conversion_method=args.method,
         verbose=args.verbose,
         progress=args.progress,
+        parallel=args.parallel,
         output_file_path=args.output_dir / args.output_file,
     )
 

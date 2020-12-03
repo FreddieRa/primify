@@ -131,7 +131,7 @@ def is_prime(n):
 # next prime strictly larger than n
 
 
-def next_prime(n, expected, progress):
+def next_prime(n, expected, progress, parallel=False):
     if n < 2:
         return 2
     # first odd larger than n
@@ -156,48 +156,57 @@ def next_prime(n, expected, progress):
             m = (s + e) >> 1
 
     number = int(n + (indices[m] - x))
-
-    index = m
-
     p = ProgressBar(expected)
 
-    tests = 0
+    if (not parallel):
+        # adjust offsets
+        offs = offsets[m:]+offsets[:m]
+        j = 1
+        while True:
+          for o in offs:
+              if(progress): 
+                  p(j)
+              if is_prime(number):
+                  return (number, j)
+              number += o
+              j += 1
+    else:
+        index = m
 
-    sizeOfArray = 10000
-    pool = multiprocessing.Pool(processes = multiprocessing.cpu_count())     
+        tests = 0
 
-    results = []
+        sizeOfArray = 10000
+        pool = multiprocessing.Pool(processes = multiprocessing.cpu_count())     
 
-    for i in range(sizeOfArray):
-        results.append(pool.apply_async(worker, (number,)))
-        number += offsets[index % len(offsets)]
-        index += 1
+        results = []
 
-    running = True
-    while running:
-        j = 0
-        while j < len(results):
-            result = results[j]
-            if result.ready():
-                tests += 1
-                p.show(tests)
-                if result.get() == 0:
-                    results.pop(j)
-                    j -= 1
-                else:
-                    prime = result.get()
-                    pool.close()
-                    pool.terminate()
-                    running = False
-                    break
-            j += 1
+        for i in range(sizeOfArray):
+            results.append(pool.apply_async(worker, (number,)))
+            number += offsets[index % len(offsets)]
+            index += 1
 
-        if all(result.ready() for result in results):
-            running = False
+        running = True
+        while running:
+            j = 0
+            while j < len(results):
+                result = results[j]
+                if result.ready():
+                    tests += 1
+                    p.show(tests)
+                    if result.get() == 0:
+                        results.pop(j)
+                        j -= 1
+                    else:
+                        prime = result.get()
+                        pool.close()
+                        pool.terminate()
+                        running = False
+                        break
+                j += 1
 
-    pool.close()
-    # pool.join()
-    return (prime, tests)
+            if all(result.ready() for result in results):
+                running = False
+        return (prime, tests)
 
 
 def worker(num):
