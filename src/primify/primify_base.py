@@ -229,15 +229,17 @@ class PrimeImage(object):
 
         self.prime = 0 + self.NUMBER
 
+        self.expected = int(self.MAX_DIGITS * 2.3/3)
+
         if self.VERBOSE:
             print(
                 f"""Starting search for prime.
 Note that in this instance we would expect to run
-about {int(self.MAX_DIGITS * 2.3)} primality tests."""
+about {self.expected} primality tests."""
             )
 
         # self.prime = nextprime(self.prime)
-        (self.prime, self.total) = next_prime(self.prime, int(self.MAX_DIGITS * 2.3), self.PROGRESS, self.PARALLEL)
+        (self.prime, self.total) = next_prime(self.prime, self.expected, self.PROGRESS, self.PARALLEL)
 
         if self.VERBOSE:
             print("Found!")

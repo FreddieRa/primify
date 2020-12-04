@@ -156,6 +156,8 @@ def next_prime(n, expected, progress, parallel=False):
             m = (s + e) >> 1
 
     number = int(n + (indices[m] - x))
+
+
     p = ProgressBar(expected)
 
     if (not parallel):
@@ -175,11 +177,15 @@ def next_prime(n, expected, progress, parallel=False):
 
         tests = 0
 
-        sizeOfArray = 10000
-        pool = multiprocessing.Pool(processes = multiprocessing.cpu_count())     
-
+        # Create a pool with a set number of workers
+        pool = multiprocessing.Pool(processes = multiprocessing.cpu_count())
+        
+        # This will need to be adapted based on size of number and available ram
+        # TODO look into psutil library
+        sizeOfArray = 10000     
         results = []
 
+        # Create all of the jobs, which the pool will automatically assign free workers to
         for i in range(sizeOfArray):
             results.append(pool.apply_async(worker, (number,)))
             number += offsets[index % len(offsets)]
@@ -188,6 +194,8 @@ def next_prime(n, expected, progress, parallel=False):
         running = True
         while running:
             j = 0
+            # Continually loop through results, removing them if they're done and
+            # not prime
             while j < len(results):
                 result = results[j]
                 if result.ready():
@@ -203,9 +211,14 @@ def next_prime(n, expected, progress, parallel=False):
                         running = False
                         break
                 j += 1
+            
+            # If running out of jobs, add as many as expected to be required
+            if len(results) < multiprocessing.cpu_count():
+                for i in range(expected-tests):
+                    results.append(pool.apply_async(worker, (number,)))
+                    number += offsets[index % len(offsets)]
+                    index += 1
 
-            if all(result.ready() for result in results):
-                running = False
         return (prime, tests)
 
 
