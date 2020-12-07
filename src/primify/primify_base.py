@@ -48,7 +48,6 @@ class PrimeImage(object):
         conversion_method: int = 1,
         output_file_path: Path = Path("./prime.txt"),
         verbose: bool = False,
-        progress: bool = False,
         parallel: bool = False,
     ):
         super(PrimeImage, self).__init__()
@@ -62,7 +61,6 @@ class PrimeImage(object):
         # saving verbosity status
         self.VERBOSE = verbose
 
-        self.PROGRESS = progress
 
         self.PARALLEL = parallel
 
@@ -239,7 +237,7 @@ about {self.expected} primality tests."""
             )
 
         # self.prime = nextprime(self.prime)
-        (self.prime, self.total) = next_prime(self.prime, self.expected, self.PROGRESS, self.PARALLEL)
+        (self.prime, self.total) = next_prime(self.prime, self.expected, self.PARALLEL)
 
         if self.VERBOSE:
             print("Found!")

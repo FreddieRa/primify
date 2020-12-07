@@ -131,7 +131,7 @@ def is_prime(n):
 # next prime strictly larger than n
 
 
-def next_prime(n, expected, progress, parallel=False):
+def next_prime(n, expected, parallel=False):
     if n < 2:
         return 2
     # first odd larger than n
@@ -166,8 +166,7 @@ def next_prime(n, expected, progress, parallel=False):
         j = 1
         while True:
           for o in offs:
-              if(progress): 
-                  p.show(j)
+              p.show(j)
               if is_prime(number):
                   return (number, j)
               number += o
