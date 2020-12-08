@@ -9,9 +9,8 @@ import time
 def legendre(a, m):
     return pow(a, (m-1) >> 1, m)
 
+
 # strong probable prime
-
-
 def is_sprp(n, b=2):
     d = n-1
     s = 0

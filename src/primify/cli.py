@@ -23,16 +23,27 @@ def parse_args(args):
     """
     parser = argparse.ArgumentParser(
         description="Command-line tool for converting images to primes",
-        epilog="Made by Levi B.",
+        epilog="Created by Levi B, adapted by FreddieRa and Edsgunn",
     )
 
-    parser.add_argument(
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument(
         "--image",
         action="store",
         type=Path,
-        default="./prime.png",
+        default=False,
         help="Source image to be converted",
         dest="image_path",
+    )
+
+    group.add_argument(
+        "--start",
+        action="store",
+        type=Path,
+        default=False,
+        help="Path to the number to start from",
+        dest="start_path",
     )
 
     parser.add_argument(
@@ -49,6 +60,7 @@ def parse_args(args):
         action="store",
         type=int,
         choices=[0, 1, 2],
+        default=0,
         dest="method",
         help="Method for converting image. Tweak 'till happy",
     )
@@ -92,6 +104,7 @@ def main(args):
 
     a = PrimeImage(
         image_path=args.image_path,
+        start_path=args.start_path,
         max_digits=args.max_digits,
         conversion_method=args.method,
         verbose=args.verbose,

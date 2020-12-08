@@ -3,7 +3,6 @@ import math
 from pathlib import Path
 
 from PIL import Image, ImageFilter
-from sympy import nextprime
 from primify.next_prime import *
 
 class PrimeImage(object):
@@ -43,8 +42,9 @@ class PrimeImage(object):
 
     def __init__(
         self,
-        image_path: Path = Path("./prime.png"),
+        image_path: Path = False,
         max_digits: int = 5000,
+        start_path: Path = False,
         conversion_method: int = 1,
         output_file_path: Path = Path("./prime.txt"),
         verbose: bool = False,
@@ -54,6 +54,9 @@ class PrimeImage(object):
 
         self.IMAGE_PATH = image_path
         self.MAX_DIGITS = max_digits
+
+        self.START_PATH = start_path
+
 
         # saving conversion method.
         self.CONVERSION_METHOD = conversion_method
@@ -80,8 +83,13 @@ class PrimeImage(object):
         # ordered list of digits from bright to dark
         self.ORDERED_DIGITS = [1, 7, 3, 9, 8]
 
+        if not (self.IMAGE_PATH or self.START_PATH):
+            raise Exception('Neither Image path or Start path specified')
+
+
         # loading the Pillow image object
-        self.im = Image.open(self.IMAGE_PATH)
+        if self.IMAGE_PATH:
+            self.im = Image.open(self.IMAGE_PATH)
 
         # saving output file path
         self.output_file_path = output_file_path
@@ -209,6 +217,14 @@ class PrimeImage(object):
 
         return result
 
+    def read_number(self):
+        with open(self.START_PATH, 'r') as f:
+            lines = f.read()
+            print(lines)
+            self.width = lines.index('\n')
+            num = int(lines.replace('\n', ''))
+            return num
+
     def find_next_prime(self):
         """We use sympy's nextprime() to find the next biggest prime
 
@@ -219,7 +235,11 @@ class PrimeImage(object):
             primality testing is quick.
         """
         # numberise if haven't already
-        self.numberise()
+        if self.IMAGE_PATH:
+            self.numberise()
+        else:
+            print('Starting from:')
+            self.NUMBER = self.read_number()
 
         # find prime only if we haven't already
         if self.flag_primed:
