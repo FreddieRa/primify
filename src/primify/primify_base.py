@@ -48,7 +48,7 @@ class PrimeImage(object):
         conversion_method: int = 1,
         output_file_path: Path = Path("./prime.txt"),
         verbose: bool = False,
-        progress: bool = False,
+        parallel: bool = False,
     ):
         super(PrimeImage, self).__init__()
 
@@ -61,7 +61,8 @@ class PrimeImage(object):
         # saving verbosity status
         self.VERBOSE = verbose
 
-        self.PROGRESS = progress
+
+        self.PARALLEL = parallel
 
         # check if verbose is boolean
         if not isinstance(verbose, bool):
@@ -128,7 +129,7 @@ class PrimeImage(object):
         description:
             Mainly for debugging
         """
-        self.im.show()
+        # self.im.show()
 
     def _enhance(self):
         """We apply various filters to the image to improve the conversion
@@ -226,15 +227,17 @@ class PrimeImage(object):
 
         self.prime = 0 + self.NUMBER
 
+        self.expected = int(self.MAX_DIGITS * 2.3/3)
+
         if self.VERBOSE:
             print(
                 f"""Starting search for prime.
 Note that in this instance we would expect to run
-about {int(self.MAX_DIGITS * 2.3)} primality tests."""
+about {self.expected} primality tests."""
             )
 
         # self.prime = nextprime(self.prime)
-        (self.prime, self.total) = next_prime(self.prime, int(self.MAX_DIGITS * 2.3), self.PROGRESS)
+        (self.prime, self.total) = next_prime(self.prime, self.expected, self.PARALLEL)
 
         if self.VERBOSE:
             print("Found!")
