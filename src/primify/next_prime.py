@@ -130,7 +130,7 @@ def is_prime(n):
 # next prime strictly larger than n
 
 
-def next_prime(n, expected, parallel=False):
+def next_prime(n, done, expected, parallel=False):
     if n < 2:
         return 2
     # first odd larger than n
@@ -158,22 +158,21 @@ def next_prime(n, expected, parallel=False):
 
 
     p = ProgressBar(expected)
+    tests = done
 
     if (not parallel):
         # adjust offsets
         offs = offsets[m:]+offsets[:m]
-        j = 1
         while True:
           for o in offs:
-              p.show(j)
+              p.show(tests)
               if is_prime(number):
-                  return (number, j)
+                  return (number, tests)
               number += o
-              j += 1
+              tests += 1
     else:
         index = m
 
-        tests = 0
 
         # Create a pool with a set number of workers
         pool = multiprocessing.Pool(processes = multiprocessing.cpu_count())
@@ -191,7 +190,7 @@ def next_prime(n, expected, parallel=False):
 
         running = True
         while running:
-            j = 0
+            j = done
             # Continually loop through results, removing them if they're done and
             # not prime
             while j < len(results):

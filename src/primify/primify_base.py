@@ -67,6 +67,8 @@ class PrimeImage(object):
 
         self.PARALLEL = parallel
 
+        self.DONE = 0
+
         # check if verbose is boolean
         if not isinstance(verbose, bool):
             raise ValueError("Verbosity must be True or False")
@@ -93,6 +95,7 @@ class PrimeImage(object):
 
         # saving output file path
         self.output_file_path = output_file_path
+        self.temp_file_path   = Path("./temp.txt")
 
         # Flags to tell functions if certain heavy operations have
         # already been performed
@@ -219,11 +222,21 @@ class PrimeImage(object):
 
     def read_number(self):
         with open(self.START_PATH, 'r') as f:
-            lines = f.read()
+            allLines = f.read()
+            (done, lines) = allLines.split(',\n')
             print(lines)
             self.width = lines.index('\n')
+            self.DONE = done
             num = int(lines.replace('\n', ''))
             return num
+
+    # Used to write a number temporarily to file
+    def write_number(self, file_path, number, done=-1):
+        with open(file_path, "w") as f:
+            if done != -1:
+                print(done + ',\n' + number, file=f)
+            else:
+                print(number, file=f)
 
     def find_next_prime(self):
         """We use sympy's nextprime() to find the next biggest prime
@@ -257,10 +270,10 @@ about {self.expected} primality tests."""
             )
 
         # self.prime = nextprime(self.prime)
-        (self.prime, self.total) = next_prime(self.prime, self.expected, self.PARALLEL)
+        (self.prime, self.total) = next_prime(self.prime, self.DONE, self.expected, self.PARALLEL)
 
         if self.VERBOSE:
-            print("Found!")
+            print("\nFound!")
             print(f"Did {self.total} primality tests")
 
         # set primed flag to true
@@ -301,8 +314,6 @@ about {self.expected} primality tests."""
         self.get_prime()
 
         # print it to the output file
-        with open(self.output_file_path, "w") as f:
-            print(self.prime_string, file=f)
-
-            if self.VERBOSE:
-                print(self.prime_string)
+        self.write_number(self.output_file_path,  self.prime_string)
+        if self.VERBOSE:
+            print(self.prime_string)
