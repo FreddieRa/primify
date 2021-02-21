@@ -25,7 +25,7 @@ class PrimalityTests{
             // n+1 = 2**r*s where s is odd
             int s = n+1;
             int r = 0;
-            while (s & 1 == 0) {
+            while ((s & 1) == 0) {
                 r += 1;
                 s >>= 1;
             }
@@ -50,7 +50,7 @@ class PrimalityTests{
             // mod_inv(2, n)
             int inv_2 = (n+1) >> 1;
             while (t > 0){
-                if (t & 1 == 1){
+                if ((t & 1) == 1){
                     // U, V of n+1
                     U, V = ((U + V) * inv_2) % n, ((D*U + V) * inv_2) % n;
                     q = (q * Q) % n;
@@ -74,19 +74,20 @@ class PrimalityTests{
             return U == 0;
         }
         int legendre(int a, int m){
-            return pow(a, (m-1) >> 1) % m;
+            return (int)pow(double(a), double((m-1) >> 1)) % m;
         }
         bool is_sprp(long n, int b=2){
             int d = n-1;
             int s = 0;
-            while (d & 1 == 0){
+            while ((d & 1) == 0){
                 s ++;
                 d >>= 1;
             }
-            int x = pow(b, d) % d;
+            int x = (int)pow(double(b), double(d)) % d;
             if (x == 1 or x == n-1){
                 return true;
             }
+            cout << s << endl;
             for (int r=1; r<s; r++){
                 x = (x * x) % n;
                 if (x == 1){
@@ -102,5 +103,5 @@ class PrimalityTests{
 
 extern "C" {
     PrimalityTests* PrimalityTests_new(){ return new PrimalityTests(); }
-    void PrimalityTests_is_prime(PrimalityTests* primalityTests){ primalityTests->is_prime(int); }
+    bool PrimalityTests_is_prime(PrimalityTests* primalityTests, long n){ primalityTests->is_prime(n); }
 }
