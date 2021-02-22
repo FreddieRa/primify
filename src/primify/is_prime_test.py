@@ -11,4 +11,8 @@ class primeLib(object):
         return lib.PrimalityTests_is_prime(self.obj, ctypes.c_long(n))
 
 p = primeLib()
-print(p.is_prime(17))
+for i in range(50,100):
+    print(i,p.is_prime(i))
+# print(p.is_prime(5))
+
+# print(p.is_prime(91))
