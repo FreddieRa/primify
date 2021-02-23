@@ -6,16 +6,20 @@ using namespace std;
 class PrimalityTests{
     public:
         bool is_prime(long n){
+            cout.precision(30);
             if (!is_sprp(n)){
                 return false;
             };
             long a = 5;
             long s = 2;
+            int thing = 0;
+            cout << a << " " << n << " " << pow(a, (n-1) >> 1) << " " << legendre(a,n) << endl;
             while (legendre(a, n) != n-1) {
                 s = -s;
                 a = s-a;
+                if (thing++ < 2)
+                cout << a << " " << n << " " << pow(a, (n-1) >> 1) << " " << legendre(a,n) << endl;
             }
-            cout << "here" << endl;
             return is_lucas_prp(n, a);
         }
     private:
@@ -27,7 +31,7 @@ class PrimalityTests{
             int s = n+1;
             int r = 0;
             while ((s & 1) == 0) {
-                r ++;
+                r++;
                 s >>= 1;
             }
             // calculate the bit reversal of (odd) s
@@ -35,8 +39,8 @@ class PrimalityTests{
             int t = 0;
             while(s > 0) {
                 if ((s & 1) == 1){
-                    t ++;
-                    s --;
+                    t++;
+                    s--;
                 }
                 else{
                     t <<= 1;
@@ -58,7 +62,7 @@ class PrimalityTests{
                     U = ((U + V) * inv_2) % n;
                     V = ((D*u + V) * inv_2) % n;
                     q = (q * Q) % n;
-                    t -= 1;
+                    t--;
                 }
                 else{
                     // U, V of n*2
@@ -73,14 +77,16 @@ class PrimalityTests{
                 U = (U * V) % n;
                 V = (V * V - 2 * q) % n;
                 q = (q * q) % n;
-                r -= 1;
+                r--;
             }
             // primality check
             // if n is prime, n divides the n+1st Lucas number, given the assumptions
             return U == 0;
         }
         long legendre(long a, long m){
-            return (long)pow(double(a), double((m-1) >> 1)) % m;
+            long power = (long)pow(a, ((m-1) >> 1));
+            //making the c++ % the same as the python one
+            return  (m + (power%m)) % m;
         }
         bool is_sprp(long n, int b=2){
             int d = n-1;
@@ -89,7 +95,9 @@ class PrimalityTests{
                 s ++;
                 d >>= 1;
             }
-            long x = (int)pow(double(b), double(d)) % n;
+            long x = (int)pow(b, d);
+            //making the c++ % the same as the pyhton one
+            x = (n + (x%n)) % n;
             if (x == 1 || x == n-1){
                 return true;
             }
